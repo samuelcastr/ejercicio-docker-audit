@@ -108,17 +108,17 @@ jobs:
               printf 'DB_NAME=techova\nDB_USER=techova\nDB_PASSWORD=techova_dev_2026\nDB_ROOT_PASSWORD=root_dev_2026\nSECRET_KEY=dev-clave-ci\n' | sudo tee .env >/dev/null
             fi
             if [ ! -f proxy/certs/server.crt ]; then
-              echo "Generando certificado autofirmado para *.techova.local"
+              echo "Generando certificado autofirmado para *.techovaf4.duckdns.org"
               sudo mkdir -p proxy/certs
               sudo openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
                 -keyout proxy/certs/server.key -out proxy/certs/server.crt \
-                -subj "/CN=api.techova.local" \
-                -addext "subjectAltName=DNS:api.techova.local,DNS:dizzle.techova.local,DNS:kuma.techova.local"
+                -subj "/CN=api.techovaf4.duckdns.org" \
+                -addext "subjectAltName=DNS:api.techovaf4.duckdns.org,DNS:dizzle.techovaf4.duckdns.org,DNS:kuma.techovaf4.duckdns.org"
             fi
             sudo docker compose up -d --build
             sleep 12
             echo "== Verificacion HTTPS =="
-            curl -kfsS https://localhost/health -H "Host: api.techova.local" >/dev/null && echo "API por HTTPS OK"
-            curl -kfsS https://localhost/ -H "Host: dizzle.techova.local" | grep -qi dizzle && echo "dizzle por HTTPS OK"
-            curl -kfsS https://localhost/ -H "Host: kuma.techova.local" | grep -qi kuma && echo "kuma por HTTPS OK"
-            curl -fsS -o /dev/null http://localhost/ -H "Host: api.techova.local" -w "HTTP 80 -> %{http_code} (302)\n" || true
+            curl -kfsS https://localhost/health -H "Host: api.techovaf4.duckdns.org" >/dev/null && echo "API por HTTPS OK"
+            curl -kfsS https://localhost/ -H "Host: dizzle.techovaf4.duckdns.org" | grep -qi dizzle && echo "dizzle por HTTPS OK"
+            curl -kfsS https://localhost/ -H "Host: kuma.techovaf4.duckdns.org" | grep -qi kuma && echo "kuma por HTTPS OK"
+            curl -fsS -o /dev/null http://localhost/ -H "Host: api.techovaf4.duckdns.org" -w "HTTP 80 -> %{http_code} (302)\n" || true
