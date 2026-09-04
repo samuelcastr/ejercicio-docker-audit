@@ -1,0 +1,7 @@
+NAME          IMAGE         COMMAND                  SERVICE   CREATED              STATUS                        PORTS
+techova-app   techova-app   "gunicorn --bind 0.0…"   app       About a minute ago   Up 53 seconds (healthy)       0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+techova-db    mariadb:11    "docker-entrypoint.s…"   db        About a minute ago   Up About a minute (healthy)   3306/tcp
+
+{"status":"ok"}
+
+{"email":"ana@techova.co","id":1,"nombre":"Ana P\u00e9rez"}
