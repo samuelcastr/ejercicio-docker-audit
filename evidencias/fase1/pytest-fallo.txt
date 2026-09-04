@@ -1,0 +1,123 @@
+===== CORRIDA 1 =====
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/samuel/Proyectos/ejercicio-docker-audit/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/samuel/Proyectos/ejercicio-docker-audit
+collecting ... collected 1 item
+
+test_app.py::test_health_check FAILED                                    [100%]
+
+=================================== FAILURES ===================================
+______________________________ test_health_check _______________________________
+
+    def test_health_check():
+        cliente = app.test_client()
+        for _ in range(5):
+            respuesta = cliente.get('/health')
+>           assert respuesta.status_code == 200, "El servicio de salud es inestable"
+E           AssertionError: El servicio de salud es inestable
+E           assert 500 == 200
+E            +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+
+test_app.py:7: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    app:app.py:875 Exception on /health [GET]
+Traceback (most recent call last):
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/app.py", line 31, in health_check
+    resultado = 1 / 0
+                ~~^~~
+ZeroDivisionError: division by zero
+=========================== short test summary info ============================
+FAILED test_app.py::test_health_check - AssertionError: El servicio de salud ...
+============================== 1 failed in 0.08s ===============================
+===== CORRIDA 2 =====
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/samuel/Proyectos/ejercicio-docker-audit/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/samuel/Proyectos/ejercicio-docker-audit
+collecting ... collected 1 item
+
+test_app.py::test_health_check FAILED                                    [100%]
+
+=================================== FAILURES ===================================
+______________________________ test_health_check _______________________________
+
+    def test_health_check():
+        cliente = app.test_client()
+        for _ in range(5):
+            respuesta = cliente.get('/health')
+>           assert respuesta.status_code == 200, "El servicio de salud es inestable"
+E           AssertionError: El servicio de salud es inestable
+E           assert 500 == 200
+E            +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+
+test_app.py:7: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    app:app.py:875 Exception on /health [GET]
+Traceback (most recent call last):
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/app.py", line 31, in health_check
+    resultado = 1 / 0
+                ~~^~~
+ZeroDivisionError: division by zero
+=========================== short test summary info ============================
+FAILED test_app.py::test_health_check - AssertionError: El servicio de salud ...
+============================== 1 failed in 0.07s ===============================
+===== CORRIDA 3 =====
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/samuel/Proyectos/ejercicio-docker-audit/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/samuel/Proyectos/ejercicio-docker-audit
+collecting ... collected 1 item
+
+test_app.py::test_health_check FAILED                                    [100%]
+
+=================================== FAILURES ===================================
+______________________________ test_health_check _______________________________
+
+    def test_health_check():
+        cliente = app.test_client()
+        for _ in range(5):
+            respuesta = cliente.get('/health')
+>           assert respuesta.status_code == 200, "El servicio de salud es inestable"
+E           AssertionError: El servicio de salud es inestable
+E           assert 500 == 200
+E            +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+
+test_app.py:7: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    app:app.py:875 Exception on /health [GET]
+Traceback (most recent call last):
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/samuel/Proyectos/ejercicio-docker-audit/app.py", line 31, in health_check
+    resultado = 1 / 0
+                ~~^~~
+ZeroDivisionError: division by zero
+=========================== short test summary info ============================
+FAILED test_app.py::test_health_check - AssertionError: El servicio de salud ...
+============================== 1 failed in 0.08s ===============================
