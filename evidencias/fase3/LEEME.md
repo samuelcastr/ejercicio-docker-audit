@@ -28,6 +28,8 @@ El job 3 solo avanza al 4 si el escaneo Trivy está limpio (gate de seguridad an
 ✓ 4-deploy in 59s
 ```
 
+Captura de los 4 jobs en verde (GitHub Actions): `evidencias/fase3/pipeline-verde.png`
+
 ## Destripes resueltos durante la ejecución
 
 1. **Clave SSH dañada en GitHub Actions secrets**: al pegar el PEM desde la web se perdían/rompían saltos de línea. Se resolvió subiendo el secreto desde el archivo real con `gh secret set EC2_SSH_KEY < clave_dock.pem` (byte a byte, sin copiar/pegar).
