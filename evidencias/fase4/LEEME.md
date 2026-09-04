@@ -54,16 +54,29 @@ HTTP 80 -> 302 (Location: https://api.techova.local/)
 === kuma ===             <h1>Servicio kuma</h1>
 ```
 
-## Resolución DNS local (sin dominio real)
+## Resolución DNS y certificado (DuckDNS + Let's Encrypt)
 
-No hay dominio público: los nombres se resuelven con una entrada en `/etc/hosts` de cada máquina cliente:
+- Se registró el dominio **`techovaf4.duckdns.org`** en DuckDNS apuntando a `3.142.51.210`.
+- DuckDNS activa el **wildcard** `*.techovaf4.duckdns.org`, así que `api`, `dizzle` y `kuma` resuelven por DNS público (se verificó: todos → 3.142.51.210). Ya no hay `/etc/hosts`.
+- Certificados con **acme.sh** (instalado en la EC2, versión 3.1.5, con su tarea cron para renovación):
+  - Emisión por **DNS-01** usando el token de DuckDNS y el plugin `dns_duckdns`, para `*.techovaf4.duckdns.org` (single-domain; emitir además la raíz provoca duplicados de TXT en DuckDNS).
+  - Resultado servido por nginx:
+    ```
+    issuer  = Let's Encrypt (YR1)
+    subject = CN=*.techovaf4.duckdns.org
+    válido  hasta 2026-12-03 (renovación automática vía cron + reloadcmd 2026-11-04)
+    ```
+  - Los certs viven en `proxy/certs/` de la instancia (gitignored) y el job de deploy los preserva; el `--reloadcmd` de acme.sh renueva + hace `docker compose restart proxy` en la EC2.
+- Con CA real el navegador **no muestra avisos**; comprobado con `curl` sin `-k`:
+  ```
+  https://api.techovaf4.duckdns.org/health → {"status":"ok"} HTTP 200
+  https://dizzle.techovaf4.duckdns.org      → HTTP 200
+  https://kuma.techovaf4.duckdns.org        → HTTP 200
+  http://api.techovaf4.duckdns.org          → 302 → https
+  ```
 
-```
-3.142.51.210 api.techova.local dizzle.techova.local kuma.techova.local
-```
-
-Como el certificado es autofirmado, el navegador mostrará un aviso al primer acceso; se acepta para esta práctica. En producción se usaría un certificado emitido por una CA o Let's Encrypt.
-
-## Incidente resuelto
+## Incidentes resueltos
 
 - El primer push de Fase 4 fallaba el arranque del workflow ("workflow file issue"): el bloque `script:` del job deploy había quedado desindentado y fuera de `with:`. Corregido a la indentación correcta (commit 3f77da8).
+- El proxy nginx no recargaba el config nuevo en cada deploy (los bind-mounts no cambian de hash): se añadió `docker compose up -d --force-recreate proxy` al job de deploy.
+- Emisión de Let's Encrypt colgada: la imagen mínima de Debian no traía `dig`/`nslookup` (se instaló `dnsutils`) y emitir wildcard + raíz a la vez duplicaba los TXT de DuckDNS; se resolvió emitiendo solo el wildcard con `--dnssleep`.

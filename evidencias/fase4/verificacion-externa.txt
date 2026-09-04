@@ -1,8 +1,21 @@
-  == HTTPS API ==
-  {"status":"ok"}
-  == HTTP redirige a HTTPS ==
-  HTTP 80 -> 302 (Location: https://api.techova.local/)
-  == dizzle ==
-  <h1>Servicio dizzle</h1>
-  == kuma ==
-  <h1>Servicio kuma</h1>
+Verificacion externa con DNS real (DuckDNS) y certificado Let's Encrypt (sin -k, confianza de CA real):
+
+== HTTPS API ==
+curl -s https://api.techovaf4.duckdns.org/health
+{"status":"ok"} [HTTP 200]
+
+== HTTP redirige a HTTPS ==
+curl -s http://api.techovaf4.duckdns.org/
+302 -> https://api.techovaf4.duckdns.org/
+
+== dizzle ==
+curl -s https://dizzle.techovaf4.duckdns.org/  -> HTTP 200 (Servicio dizzle)
+
+== kuma ==
+curl -s https://kuma.techovaf4.duckdns.org/  -> HTTP 200 (Servicio kuma)
+
+== Certificado ==
+issuer = C=US, O=Let's Encrypt, CN=YR1
+subject = CN=*.techovaf4.duckdns.org
+notBefore = Sep 4 20:05:46 2026 GMT
+notAfter = Dec 3 20:05:45 2026 GMT
