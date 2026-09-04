@@ -116,6 +116,7 @@ jobs:
                 -addext "subjectAltName=DNS:api.techovaf4.duckdns.org,DNS:dizzle.techovaf4.duckdns.org,DNS:kuma.techovaf4.duckdns.org"
             fi
             sudo docker compose up -d --build
+            sudo docker compose up -d --force-recreate proxy
             sleep 12
             echo "== Verificacion HTTPS =="
             curl -kfsS https://localhost/health -H "Host: api.techovaf4.duckdns.org" >/dev/null && echo "API por HTTPS OK"
