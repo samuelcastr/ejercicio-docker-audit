@@ -37,20 +37,20 @@ services:
       - techova-net
 
   dizzle-app:
-    image: nginx:alpine
+    image: docker.io/grafana/grafana@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283
     container_name: techova-dizzle
     restart: unless-stopped
     volumes:
-      - ./proxy/dizzle:/usr/share/nginx/html:ro
+      - dizzle-data:/var/lib/grafana
     networks:
       - techova-net
 
   kuma-app:
-    image: nginx:alpine
+    image: docker.io/louislam/uptime-kuma@sha256:3d632903e6af34139a37f18055c4f1bfd9b7205ae1138f1e5e8940ddc1d176f9
     container_name: techova-kuma
     restart: unless-stopped
     volumes:
-      - ./proxy/kuma:/usr/share/nginx/html:ro
+      - kuma-data:/app/data
     networks:
       - techova-net
 
@@ -73,6 +73,8 @@ services:
 
 volumes:
   db-data:
+  dizzle-data:
+  kuma-data:
 
 networks:
   techova-net:

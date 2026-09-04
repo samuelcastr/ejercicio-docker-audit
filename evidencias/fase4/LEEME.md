@@ -16,13 +16,14 @@
         |     |     |                            |
    api.techova.local  dizzle.techova.local    kuma.techova.local
         |     |     |                            |
-   techova-app   techova-dizzle (nginx)      techova-kuma (nginx)
-   (gunicorn:8000)  (HTML placeholder)        (HTML placeholder)
+   techova-app   techova-dizzle (grafana)    techova-kuma (uptime-kuma)
+   (gunicorn:8000)  (grafana:3000)             (kuma:3001)
         |
    techova-db (mariadb:11)
 ```
 
 - `proxy/nginx.conf` montado en el proxy: 1 bloque HTTP que redirige con `302` a HTTPS y 3 bloques HTTPS (`api`, `dizzle`, `kuma`).
+- Los servicios `dizzle` y `kuma` son **imágenes externas** traídas con `docker compose` (pineadas por digest): `grafana/grafana` (puerto 3000) y `louislam/uptime-kuma` (puerto 3001), con volúmenes `dizzle-data` y `kuma-data`. El pipeline ejecuta `docker compose pull` antes de `up`.
 - Certificado **autofirmado** wildcard/SAN para `*.techova.local`, generado en el deploy con `openssl` (evita commitear claves).
 - Cabeceras de seguridad en el proxy: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` (HSTS).
 - TLS 1.2/1.3 únicamente.
@@ -70,8 +71,8 @@ HTTP 80 -> 302 (Location: https://api.techova.local/)
 - Con CA real el navegador **no muestra avisos**; comprobado con `curl` sin `-k`:
   ```
   https://api.techovaf4.duckdns.org/health → {"status":"ok"} HTTP 200
-  https://dizzle.techovaf4.duckdns.org      → HTTP 200
-  https://kuma.techovaf4.duckdns.org        → HTTP 200
+  https://dizzle.techovaf4.duckdns.org      → 302 → /login (Grafana)
+  https://kuma.techovaf4.duckdns.org        → 302 → /setup (Uptime Kuma)
   http://api.techovaf4.duckdns.org          → 302 → https
   ```
 

@@ -115,11 +115,14 @@ jobs:
                 -subj "/CN=api.techovaf4.duckdns.org" \
                 -addext "subjectAltName=DNS:api.techovaf4.duckdns.org,DNS:dizzle.techovaf4.duckdns.org,DNS:kuma.techovaf4.duckdns.org"
             fi
+            sudo docker compose pull --ignore-pull-failures
             sudo docker compose up -d --build
             sudo docker compose up -d --force-recreate proxy
             sleep 12
             echo "== Verificacion HTTPS =="
-            curl -kfsS https://localhost/health -H "Host: api.techovaf4.duckdns.org" >/dev/null && echo "API por HTTPS OK"
-            curl -kfsS https://localhost/ -H "Host: dizzle.techovaf4.duckdns.org" | grep -qi dizzle && echo "dizzle por HTTPS OK"
-            curl -kfsS https://localhost/ -H "Host: kuma.techovaf4.duckdns.org" | grep -qi kuma && echo "kuma por HTTPS OK"
+            curl -kfsS https://localhost/health -H "Host: api.techovaf4.duckdns.org" | grep -q '"status":"ok"' && echo "API por HTTPS OK"
+            code=$(curl -ksS -o /dev/null -w '%{http_code}' https://localhost/ --resolve dizzle.techovaf4.duckdns.org:443:127.0.0.1)
+            [ "$code" = "200" ] || [ "$code" = "302" ] && echo "dizzle (Grafana) por HTTPS OK ($code -> login)"
+            code=$(curl -ksS -o /dev/null -w '%{http_code}' https://localhost/ --resolve kuma.techovaf4.duckdns.org:443:127.0.0.1)
+            [ "$code" = "200" ] || [ "$code" = "302" ] && echo "kuma (Uptime Kuma) por HTTPS OK ($code -> setup)"
             curl -fsS -o /dev/null http://localhost/ -H "Host: api.techovaf4.duckdns.org" -w "HTTP 80 -> %{http_code} (302)\n" || true

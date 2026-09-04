@@ -8,11 +8,11 @@ curl -s https://api.techovaf4.duckdns.org/health
 curl -s http://api.techovaf4.duckdns.org/
 302 -> https://api.techovaf4.duckdns.org/
 
-== dizzle ==
-curl -s https://dizzle.techovaf4.duckdns.org/  -> HTTP 200 (Servicio dizzle)
+== dizzle (Grafana, imagen externa) ==
+curl -s https://dizzle.techovaf4.duckdns.org/  -> 302 -> /login (pantalla de login de Grafana)
 
-== kuma ==
-curl -s https://kuma.techovaf4.duckdns.org/  -> HTTP 200 (Servicio kuma)
+== kuma (Uptime Kuma, imagen externa) ==
+curl -s https://kuma.techovaf4.duckdns.org/  -> 302 -> /setup (asistente inicial de Uptime Kuma)
 
 == Certificado ==
 issuer = C=US, O=Let's Encrypt, CN=YR1
