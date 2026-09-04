@@ -1,0 +1,8 @@
+  == HTTPS API ==
+  {"status":"ok"}
+  == HTTP redirige a HTTPS ==
+  HTTP 80 -> 302 (Location: https://api.techova.local/)
+  == dizzle ==
+  <h1>Servicio dizzle</h1>
+  == kuma ==
+  <h1>Servicio kuma</h1>
