@@ -26,7 +26,7 @@ evidencias/
 | Fase | Estado | Evidencia principal |
 |------|--------|---------------------|
 | **1. Auditoría** | ✅ Completa | Tabla en `AUDITORIA.md` + 4 archivos de salida |
-| **2. Refactor** | ⏳ Pendiente | pytest/bandit/trivy en verde + `docker compose up` |
+| **2. Refactor** | ✅ Completa | pytest 6 passed · bandit 0 · trivy 0 · compose healthy |
 | **3. Pipeline** | ⏳ Pendiente | Screenshot de GitHub Actions con 4 jobs verdes |
 | **4. Despliegue** | ⏳ Pendiente | `/etc/hosts`, curl 3 subdominios, nginx, `docker ps` en EC2 |
 

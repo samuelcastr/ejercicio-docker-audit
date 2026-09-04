@@ -1,0 +1,34 @@
+== DOCKER COMPOSE UP + PRUEBAS DE ENDPOINTS (Fase 2) ==
+
+## docker compose ps
+NAME          IMAGE                        COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+techova-app   ejercicio-docker-audit-app   "gunicorn --bind 0.0…"   app       26 seconds ago   Up 15 seconds (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+techova-db    mariadb:11                   "docker-entrypoint.s…"   db        26 seconds ago   Up 26 seconds (healthy)   3306/tcp
+
+## GET / (home)
+{"estado":"operativo","servicio":"API TechNova","version":"2.0.0"}
+
+[HTTP 200]
+
+## GET /health (x5 - determinista)
+200 200 200 200 200 
+
+## GET /buscar?id=1 (query real contra MariaDB - parametrizada)
+{"email":"ana@techova.co","id":1,"nombre":"Ana P\u00e9rez"}
+
+[HTTP 200]
+
+## GET /buscar?id=1 OR 1=1-- (inyeccion neutralizada -> 400)
+{"error":"El par\u00e1metro 'id' debe ser un entero positivo"}
+
+[HTTP 400]
+
+## GET /buscar?id=9999 (no existe -> 404)
+{"error":"Usuario no encontrado"}
+
+[HTTP 404]
+
+## GET /buscar?id=abc (invalido -> 400)
+{"error":"El par\u00e1metro 'id' debe ser un entero positivo"}
+
+[HTTP 400]

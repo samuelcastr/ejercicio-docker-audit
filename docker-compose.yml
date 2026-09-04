@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: techova-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:?Debe definir DB_NAME en .env}
+      MARIADB_USER: ${DB_USER:?Debe definir DB_USER en .env}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Debe definir DB_PASSWORD en .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Debe definir DB_ROOT_PASSWORD en .env}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - techova-net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: techova-app
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER:?Debe definir DB_USER en .env}
+      DB_PASSWORD: ${DB_PASSWORD:?Debe definir DB_PASSWORD en .env}
+      DB_NAME: ${DB_NAME:?Debe definir DB_NAME en .env}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - techova-net
+
+volumes:
+  db-data:
+
+networks:
+  techova-net:
+    driver: bridge

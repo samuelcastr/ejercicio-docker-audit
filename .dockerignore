@@ -1,0 +1,11 @@
+.venv
+venv
+l
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+evidencias
+db-data
+*.md

@@ -50,3 +50,26 @@
 | Explotación | `evidencias/fase1/exploit-dinamico.txt` | SQLi reflejada, 200/500 al azar, debugger activo |
 
 **Conclusión:** la API presenta **2 vulnerabilidades críticas explotables de forma remota** (secretos + SQLi), **debug habilitado** (RCE), **disponibilidad inestable** y una imagen con **1976+ CVEs**. Requiere refactorización completa antes de cualquier despliegue.
+
+---
+
+## Actualización — Fase 2: remediación aplicada (04/09/2026)
+
+Todas las vulnerabilidades fueron corregidas en la refactorización. Evidencias en [`evidencias/fase2/`](evidencias/fase2/LEEME.md).
+
+| # | Vulnerabilidad | Estado | Evidencia |
+|---|----------------|--------|-----------|
+| 1 | Credenciales en texto plano | ✅ Corregida | `app.py` usa `os.environ` · `.env.example` |
+| 2 | SQL Injection | ✅ Corregida | Query parametrizada `%s` + `isdigit()` · test `id=1 OR 1=1--` → 400 |
+| 3 | `debug=True` | ✅ Corregida | `debug=False` + gunicorn en producción |
+| 4 | `/health` inestable | ✅ Corregida | Determinista · 5/5 HTTP 200 |
+| 5 | Fuga de info | ✅ Corregida | Respuestas JSON genéricas + `logger.exception` |
+| 6 | Bind 0.0.0.0 en run | ✅ Corregida | Default `127.0.0.1`; exposición solo vía contenedor |
+| 7 | Dependencias obsoletas | ✅ Corregida | Flask 3.1.3 · PyMySQL 1.2.0 · gunicorn 26.2.0 · `python:3.12-slim` |
+| 8 | CVEs en imagen | ✅ Corregida | Trivy: **0** HIGH/CRITICAL (debian 13.6) |
+| 9 | Malas prácticas Docker | ✅ Corregida | Multi-stage, usuario `appuser` no-root, `.dockerignore`, `HEALTHCHECK` |
+| 10 | Sin orquestación | ✅ Corregida | `docker-compose.yml` (db mariadb + app) |
+| 11 | random no criptográfico | ✅ Corregida | Eliminado |
+| 12 | assert en test | ✅ Aceptable | `assert` es intencional en tests (excluido del escaneo de app) |
+
+**Resultado del análisis post-refactor:** `pytest` **6 passed** · `bandit` **0 issues** · `trivy` **0 vulnerabilidades** · `docker compose up` con ambos servicios **healthy**. Compare la imagen: 1976+8 CVEs antes → **0** después.
