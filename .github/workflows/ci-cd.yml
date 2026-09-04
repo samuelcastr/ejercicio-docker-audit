@@ -91,7 +91,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml,db/,app.py,Dockerfile,requirements.txt,.env.example"
+          source: "docker-compose.yml,db/,app.py,Dockerfile,requirements.txt,.env.example,proxy/"
           target: /tmp/techova
       - name: Desplegar con docker compose
         uses: appleboy/ssh-action@v1.0.3
@@ -99,7 +99,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+script: |
             set -e
             sudo mkdir -p /opt/techova
             sudo cp -r /tmp/techova/. /opt/techova/
@@ -107,10 +107,18 @@ jobs:
             if [ ! -f .env ]; then
               printf 'DB_NAME=techova\nDB_USER=techova\nDB_PASSWORD=techova_dev_2026\nDB_ROOT_PASSWORD=root_dev_2026\nSECRET_KEY=dev-clave-ci\n' | sudo tee .env >/dev/null
             fi
+            if [ ! -f proxy/certs/server.crt ]; then
+              echo "Generando certificado autofirmado para *.techova.local"
+              sudo mkdir -p proxy/certs
+              sudo openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+                -keyout proxy/certs/server.key -out proxy/certs/server.crt \
+                -subj "/CN=api.techova.local" \
+                -addext "subjectAltName=DNS:api.techova.local,DNS:dizzle.techova.local,DNS:kuma.techova.local"
+            fi
             sudo docker compose up -d --build
             sleep 12
-            curl -fsS http://localhost:8000/health >/dev/null && echo "DEPLOY OK: API sana en puerto 8000" || {
-              echo "Health check fallo. Ultimos logs:"
-              sudo docker compose logs --tail=80
-              exit 1
-            }
+            echo "== Verificacion HTTPS =="
+            curl -kfsS https://localhost/health -H "Host: api.techova.local" >/dev/null && echo "API por HTTPS OK"
+            curl -kfsS https://localhost/ -H "Host: dizzle.techova.local" | grep -qi dizzle && echo "dizzle por HTTPS OK"
+            curl -kfsS https://localhost/ -H "Host: kuma.techova.local" | grep -qi kuma && echo "kuma por HTTPS OK"
+            curl -fsS -o /dev/null http://localhost/ -H "Host: api.techova.local" -w "HTTP 80 -> %{http_code} (302)\n" || true

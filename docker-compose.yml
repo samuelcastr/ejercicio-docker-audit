@@ -36,6 +36,41 @@ services:
     networks:
       - techova-net
 
+  dizzle-app:
+    image: nginx:alpine
+    container_name: techova-dizzle
+    restart: unless-stopped
+    volumes:
+      - ./proxy/dizzle:/usr/share/nginx/html:ro
+    networks:
+      - techova-net
+
+  kuma-app:
+    image: nginx:alpine
+    container_name: techova-kuma
+    restart: unless-stopped
+    volumes:
+      - ./proxy/kuma:/usr/share/nginx/html:ro
+    networks:
+      - techova-net
+
+  proxy:
+    image: nginx:alpine
+    container_name: techova-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./proxy/certs:/etc/nginx/certs:ro
+    depends_on:
+      - app
+      - dizzle-app
+      - kuma-app
+    networks:
+      - techova-net
+
 volumes:
   db-data:
 
