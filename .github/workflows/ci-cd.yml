@@ -122,7 +122,7 @@ jobs:
             echo "== Verificacion HTTPS =="
             curl -kfsS https://localhost/health -H "Host: api.techovaf4.duckdns.org" | grep -q '"status":"ok"' && echo "API por HTTPS OK"
             code=$(curl -ksS -o /dev/null -w '%{http_code}' https://localhost/ --resolve duzzle.techovaf4.duckdns.org:443:127.0.0.1)
-            [ "$code" = "200" ] || [ "$code" = "302" ] && echo "duzzle (Grafana) por HTTPS OK ($code -> login)"
+            [ "$code" = "200" ] || [ "$code" = "302" ] && echo "duzzle (Dozzle) por HTTPS OK ($code)"
             code=$(curl -ksS -o /dev/null -w '%{http_code}' https://localhost/ --resolve kuma.techovaf4.duckdns.org:443:127.0.0.1)
             [ "$code" = "200" ] || [ "$code" = "302" ] && echo "kuma (Uptime Kuma) por HTTPS OK ($code -> setup)"
             curl -fsS -o /dev/null http://localhost/ -H "Host: api.techovaf4.duckdns.org" -w "HTTP 80 -> %{http_code} (302)\n" || true

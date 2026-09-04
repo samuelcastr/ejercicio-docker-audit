@@ -37,11 +37,12 @@ services:
       - techova-net
 
   duzzle-app:
-    image: docker.io/grafana/grafana@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283
+    image: docker.io/amir20/dozzle@sha256:6bfc1e9f58bc58b63e97292fcdb990a792b9e7584919742f0f3ea13881ae60a8
     container_name: techova-duzzle
     restart: unless-stopped
     volumes:
-      - duzzle-data:/var/lib/grafana
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - duzzle-data:/data
     networks:
       - techova-net
 
