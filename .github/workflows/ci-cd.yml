@@ -1,0 +1,111 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 1-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias
+        run: pip install -r requirements-dev.txt
+      - name: Ejecutar pytest
+        run: pytest -v
+
+  bandit:
+    name: 2-bandit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar bandit
+        run: pip install bandit
+      - name: Escaneo de seguridad
+        run: bandit app.py -f txt
+
+  trivy:
+    name: 3-trivy
+    needs: [test, bandit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir imagen
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ejercicio-docker-audit:latest
+      - name: Escaneo Trivy (HIGH/CRITICAL bloquea)
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.73.0 image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            ejercicio-docker-audit:latest
+
+  deploy:
+    name: 4-deploy
+    needs: [test, bandit, trivy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aprovisionar Docker en la EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            if ! command -v docker >/dev/null 2>&1; then
+              sudo apt-get update -qq
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker.io docker-compose-v2
+              sudo systemctl enable --now docker
+            fi
+            sudo docker version --format 'Docker server: {{.Server.Version}}'
+            docker compose version
+      - name: Copiar codigo a la EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml,db/,app.py,Dockerfile,requirements.txt,.env.example"
+          target: /tmp/techova
+      - name: Desplegar con docker compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            sudo mkdir -p /opt/techova
+            sudo cp -r /tmp/techova/. /opt/techova/
+            cd /opt/techova
+            if [ ! -f .env ]; then
+              printf 'DB_NAME=techova\nDB_USER=techova\nDB_PASSWORD=techova_dev_2026\nDB_ROOT_PASSWORD=root_dev_2026\nSECRET_KEY=dev-clave-ci\n' | sudo tee .env >/dev/null
+            fi
+            sudo docker compose up -d --build
+            sleep 12
+            curl -fsS http://localhost:8000/health >/dev/null && echo "DEPLOY OK: API sana en puerto 8000" || {
+              echo "Health check fallo. Ultimos logs:"
+              sudo docker compose logs --tail=80
+              exit 1
+            }
