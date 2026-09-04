@@ -36,12 +36,12 @@ services:
     networks:
       - techova-net
 
-  dizzle-app:
+  duzzle-app:
     image: docker.io/grafana/grafana@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283
-    container_name: techova-dizzle
+    container_name: techova-duzzle
     restart: unless-stopped
     volumes:
-      - dizzle-data:/var/lib/grafana
+      - duzzle-data:/var/lib/grafana
     networks:
       - techova-net
 
@@ -66,14 +66,14 @@ services:
       - ./proxy/certs:/etc/nginx/certs:ro
     depends_on:
       - app
-      - dizzle-app
+      - duzzle-app
       - kuma-app
     networks:
       - techova-net
 
 volumes:
   db-data:
-  dizzle-data:
+  duzzle-data:
   kuma-data:
 
 networks:

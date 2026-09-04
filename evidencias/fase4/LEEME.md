@@ -1,6 +1,6 @@
 # FASE 4 — Proxy inverso nginx + 3 subdominios + HTTPS
 
-**Objetivo:** exponer la API y 2 servicios adicionales (dizzle, kuma) mediante un proxy inverso nginx con TLS, redirigiendo todo el tráfico HTTP a HTTPS.
+**Objetivo:** exponer la API y 2 servicios adicionales (duzzle, kuma) mediante un proxy inverso nginx con TLS, redirigiendo todo el tráfico HTTP a HTTPS.
 
 ## Arquitectura del stack (EC2, docker compose)
 
@@ -14,16 +14,16 @@
         |           | proxy_pass
         |     +-----+----------------------------+
         |     |     |                            |
-   api.techova.local  dizzle.techova.local    kuma.techova.local
+   api.techova.local  duzzle.techova.local    kuma.techova.local
         |     |     |                            |
-   techova-app   techova-dizzle (grafana)    techova-kuma (uptime-kuma)
+   techova-app   techova-duzzle (grafana)    techova-kuma (uptime-kuma)
    (gunicorn:8000)  (grafana:3000)             (kuma:3001)
         |
    techova-db (mariadb:11)
 ```
 
-- `proxy/nginx.conf` montado en el proxy: 1 bloque HTTP que redirige con `302` a HTTPS y 3 bloques HTTPS (`api`, `dizzle`, `kuma`).
-- Los servicios `dizzle` y `kuma` son **imágenes externas** traídas con `docker compose` (pineadas por digest): `grafana/grafana` (puerto 3000) y `louislam/uptime-kuma` (puerto 3001), con volúmenes `dizzle-data` y `kuma-data`. El pipeline ejecuta `docker compose pull` antes de `up`.
+- `proxy/nginx.conf` montado en el proxy: 1 bloque HTTP que redirige con `302` a HTTPS y 3 bloques HTTPS (`api`, `duzzle`, `kuma`).
+- Los servicios `duzzle` y `kuma` son **imágenes externas** traídas con `docker compose` (pineadas por digest): `grafana/grafana` (puerto 3000) y `louislam/uptime-kuma` (puerto 3001), con volúmenes `duzzle-data` y `kuma-data`. El pipeline ejecuta `docker compose pull` antes de `up`.
 - Certificado **autofirmado** wildcard/SAN para `*.techova.local`, generado en el deploy con `openssl` (evita commitear claves).
 - Cabeceras de seguridad en el proxy: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` (HSTS).
 - TLS 1.2/1.3 únicamente.
@@ -36,7 +36,7 @@
   ```
   out: == Verificacion HTTPS ==
   out: API por HTTPS OK
-  out: dizzle por HTTPS OK
+  out: duzzle por HTTPS OK
   out: kuma por HTTPS OK
   ```
 
@@ -51,14 +51,14 @@
 === HTTP -> HTTPS ===    curl -sS http://3.142.51.210/ ...
 HTTP 80 -> 302 (Location: https://api.techova.local/)
 
-=== dizzle ===           <h1>Servicio dizzle</h1>
+=== duzzle ===           <h1>Servicio duzzle</h1>
 === kuma ===             <h1>Servicio kuma</h1>
 ```
 
 ## Resolución DNS y certificado (DuckDNS + Let's Encrypt)
 
 - Se registró el dominio **`techovaf4.duckdns.org`** en DuckDNS apuntando a `3.142.51.210`.
-- DuckDNS activa el **wildcard** `*.techovaf4.duckdns.org`, así que `api`, `dizzle` y `kuma` resuelven por DNS público (se verificó: todos → 3.142.51.210). Ya no hay `/etc/hosts`.
+- DuckDNS activa el **wildcard** `*.techovaf4.duckdns.org`, así que `api`, `duzzle` y `kuma` resuelven por DNS público (se verificó: todos → 3.142.51.210). Ya no hay `/etc/hosts`.
 - Certificados con **acme.sh** (instalado en la EC2, versión 3.1.5, con su tarea cron para renovación):
   - Emisión por **DNS-01** usando el token de DuckDNS y el plugin `dns_duckdns`, para `*.techovaf4.duckdns.org` (single-domain; emitir además la raíz provoca duplicados de TXT en DuckDNS).
   - Resultado servido por nginx:
@@ -71,7 +71,7 @@ HTTP 80 -> 302 (Location: https://api.techova.local/)
 - Con CA real el navegador **no muestra avisos**; comprobado con `curl` sin `-k`:
   ```
   https://api.techovaf4.duckdns.org/health → {"status":"ok"} HTTP 200
-  https://dizzle.techovaf4.duckdns.org      → 302 → /login (Grafana)
+  https://duzzle.techovaf4.duckdns.org      → 302 → /login (Grafana)
   https://kuma.techovaf4.duckdns.org        → 302 → /setup (Uptime Kuma)
   http://api.techovaf4.duckdns.org          → 302 → https
   ```
